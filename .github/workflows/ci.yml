@@ -13,9 +13,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
-      - uses: astral-sh/setup-uv@v4
+      - uses: astral-sh/setup-uv@v5
       - run: uv sync
       - run: uv run pytest
       - run: cargo test -p ztml-core
@@ -38,12 +38,12 @@ jobs:
             target: x86_64
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
-          args: --release --out dist
-      - uses: actions/upload-artifact@v4
+          args: --release --out dist --find-interpreter
+      - uses: actions/upload-artifact@v5
         with:
           name: wheel-${{ matrix.os }}-${{ matrix.target }}
           path: dist/
@@ -53,12 +53,12 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: PyO3/maturin-action@v1
         with:
           command: sdist
           args: --out dist
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: sdist
           path: dist/
@@ -71,7 +71,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: '{wheel-*,sdist}'
           merge-multiple: true
