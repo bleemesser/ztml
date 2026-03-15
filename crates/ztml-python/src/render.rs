@@ -1,13 +1,13 @@
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::gen_stub_pyfunction;
-use zhtml_core::render::{render_child_into, render_element, render_script, render_stylesheet};
+use ztml_core::render::{render_child_into, render_element, render_script, render_stylesheet};
 
 use crate::css::PyStyle;
 use crate::overrides::{Fragment, PyElement};
 use crate::script::PyScript;
 
 /// Render a Python object (i.e. `Element`, `Fragment`, `Style`, `Script`, or any object with
-/// `__zhtml_render__`) to an HTML string
+/// `__ztml_render__`) to an HTML string
 #[gen_stub_pyfunction]
 #[pyfunction]
 pub fn render(obj: &Bound<'_, pyo3::PyAny>) -> PyResult<String> {
@@ -26,18 +26,18 @@ pub fn render(obj: &Bound<'_, pyo3::PyAny>) -> PyResult<String> {
         let mut out = String::from("<script");
         for (name, value) in &script.element.attrs {
             match value {
-                zhtml_core::element::AttrValue::String(s) => {
+                ztml_core::element::AttrValue::String(s) => {
                     out.push(' ');
                     out.push_str(name);
                     out.push_str("=\"");
                     out.push_str(s);
                     out.push('"');
                 }
-                zhtml_core::element::AttrValue::Bool(true) => {
+                ztml_core::element::AttrValue::Bool(true) => {
                     out.push(' ');
                     out.push_str(name);
                 }
-                zhtml_core::element::AttrValue::Bool(false) => {}
+                ztml_core::element::AttrValue::Bool(false) => {}
             }
         }
         out.push('>');
@@ -46,8 +46,8 @@ pub fn render(obj: &Bound<'_, pyo3::PyAny>) -> PyResult<String> {
         }
         out.push_str("</script>");
         Ok(out)
-    } else if obj.hasattr("__zhtml_render__")? {
-        let result = obj.call_method0("__zhtml_render__")?;
+    } else if obj.hasattr("__ztml_render__")? {
+        let result = obj.call_method0("__ztml_render__")?;
         render(&result)
     } else {
         Err(pyo3::exceptions::PyTypeError::new_err(format!(

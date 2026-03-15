@@ -1,8 +1,11 @@
 *target
 *.DS_Store
-zhtml/*
-!zhtml/__init__.py
-!zhtml/server.py
+ztml/*
+!ztml/__init__.py
+!ztml/server.py
+!ztml/_core/
+ztml/_core/*
+!ztml/_core/__init__.pyi
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

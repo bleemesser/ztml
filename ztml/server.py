@@ -9,7 +9,7 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, Response
 from starlette.routing import Route
 
-from zhtml._core import render, Element, Fragment, Style, Script
+from ztml._core import render, Element, Fragment, Style, Script
 
 HTMX_SCRIPT = '<script src="https://unpkg.com/htmx.org"></script>'
 
@@ -64,7 +64,7 @@ def _make_endpoint(handler: Callable) -> Callable:
     return endpoint
 
 
-class ZHTMLApp:
+class ZTMLApp:
     def __init__(self) -> None:
         self._routes: list[Route] = []
         self._app: Starlette | None = None
@@ -91,7 +91,7 @@ class ZHTMLApp:
 
 
 # Default app instance
-app = ZHTMLApp()
+app = ZTMLApp()
 
 
 def rt(path: str, methods: list[str] | None = None) -> Callable:

@@ -1205,14 +1205,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b97154e67e32c85465826e8bcc1c59429aaaf107c1e4a9e53c8d8ccd5eff88d0"
 
 [[package]]
-name = "zhtml-core"
+name = "zmij"
+version = "1.0.21"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b8848ee67ecc8aedbaf3e4122217aff892639231befc6a1b58d29fff4c2cabaa"
+
+[[package]]
+name = "ztml-core"
 version = "0.1.0"
 dependencies = [
  "indexmap",
 ]
 
 [[package]]
-name = "zhtml-python"
+name = "ztml-python"
 version = "0.1.0"
 dependencies = [
  "indexmap",
@@ -1221,11 +1227,5 @@ dependencies = [
  "serde",
  "serde_json",
  "ureq",
- "zhtml-core",
+ "ztml-core",
 ]
-
-[[package]]
-name = "zmij"
-version = "1.0.21"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8848ee67ecc8aedbaf3e4122217aff892639231befc6a1b58d29fff4c2cabaa"

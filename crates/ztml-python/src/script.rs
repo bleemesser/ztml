@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use zhtml_core::element::{AttrValue, Element};
-use zhtml_core::script::{EventHandler, ScriptItem};
+use ztml_core::element::{AttrValue, Element};
+use ztml_core::script::{EventHandler, ScriptItem};
 
 /// Top-level `<script>` container accepting `EventHandler` or `Raw` JS items
 #[gen_stub_pyclass]

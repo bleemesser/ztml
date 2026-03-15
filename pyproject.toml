@@ -3,18 +3,30 @@ requires = ["maturin>=1.12,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "zhtml"
+name = "ztml"
+description = "Rust-backed framework for building websites in pure Python"
+readme = "README.md"
+license = "MIT"
 requires-python = ">=3.12"
+keywords = ["html", "css", "htmx", "pyo3", "web"]
 classifiers = [
+    "Development Status :: 3 - Alpha",
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Text Processing :: Markup :: HTML",
 ]
+
 dependencies = [
     "starlette>=0.40",
     "uvicorn[standard]>=0.30",
 ]
 dynamic = ["version"]
+
+[project.urls]
+Repository = "https://github.com/bleemesser/ztml"
 
 [dependency-groups]
 dev = [
@@ -24,10 +36,11 @@ dev = [
 ]
 
 [tool.maturin]
-manifest-path = "crates/zhtml-python/Cargo.toml"
-module-name = "zhtml._core"
+manifest-path = "crates/ztml-python/Cargo.toml"
+module-name = "ztml._core"
 python-source = "."
-python-packages = ["zhtml"]
+python-packages = ["ztml"]
+include = ["ztml/_core/*.pyi"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

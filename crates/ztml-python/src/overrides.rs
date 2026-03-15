@@ -11,7 +11,7 @@
 use pyo3::prelude::*;
 use pyo3::types::{PyFloat, PyList, PyString};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pyfunction, gen_stub_pymethods};
-use zhtml_core::element::{AttrValue, Child, Element};
+use ztml_core::element::{AttrValue, Child, Element};
 
 /// Wrap a core `Element` for Python exposure with chainable attribute setters
 #[gen_stub_pyclass]
@@ -336,7 +336,7 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
 }
 
 /// Convert a Python `*args` tuple into a `Vec<Child>`, recursively resolving
-/// strings, elements, fragments, lists, numbers, `None`, and the `__zhtml_render__` protocol
+/// strings, elements, fragments, lists, numbers, `None`, and the `__ztml_render__` protocol
 pub fn py_to_children(args: &Bound<'_, pyo3::types::PyTuple>) -> PyResult<Vec<Child>> {
     let mut children = Vec::new();
     for arg in args.iter() {
@@ -364,8 +364,8 @@ fn collect_child(obj: &Bound<'_, pyo3::PyAny>, out: &mut Vec<Child>) -> PyResult
         }
     } else if obj.is_instance_of::<pyo3::types::PyInt>() || obj.is_instance_of::<PyFloat>() {
         out.push(Child::Text(obj.str()?.to_string()));
-    } else if obj.hasattr("__zhtml_render__")? {
-        let result = obj.call_method0("__zhtml_render__")?;
+    } else if obj.hasattr("__ztml_render__")? {
+        let result = obj.call_method0("__ztml_render__")?;
         collect_child(&result, out)?;
     } else {
         return Err(pyo3::exceptions::PyTypeError::new_err(format!(

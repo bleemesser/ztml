@@ -1,10 +1,10 @@
 [package]
-name = "zhtml-python"
+name = "ztml-python"
 version = "0.1.0"
 edition = "2024"
 
 [lib]
-name = "zhtml"
+name = "ztml"
 crate-type = ["cdylib", "rlib"]
 
 [features]
@@ -13,7 +13,7 @@ extension-module = ["pyo3/extension-module"]
 
 [dependencies]
 indexmap = "2.13.0"
-zhtml-core = { version = "0.1.0", path = "../zhtml-core" }
+ztml-core = { version = "0.1.0", path = "../ztml-core" }
 pyo3 = { version = "0.28.2", features = ["multiple-pymethods"] }
 pyo3-stub-gen = { version = "0.19.0", default-features = false }
 

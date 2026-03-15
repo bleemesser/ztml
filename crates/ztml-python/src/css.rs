@@ -3,7 +3,7 @@
 use indexmap::IndexMap;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use zhtml_core::css::{CssItem, CssRule, KeyframeStep, Keyframes, MediaQuery};
+use ztml_core::css::{CssItem, CssRule, KeyframeStep, Keyframes, MediaQuery};
 
 /// Top-level `<style>` container accepting `Rule`, `Media`, `Keyframes`, or `RawCss` items
 #[gen_stub_pyclass]
@@ -118,7 +118,7 @@ impl PyRuleBuilder {
 }
 
 impl PyRuleBuilder {
-    /// Convert accumulated properties into a `zhtml_core::CssRule`
+    /// Convert accumulated properties into a `ztml_core::CssRule`
     pub fn to_css_rule(&self) -> CssRule {
         let mut rule = CssRule::new(&self.selector);
         for (k, v) in &self.properties {
@@ -160,7 +160,7 @@ impl PyFrame {
 }
 
 impl PyFrame {
-    /// Convert accumulated properties into a `zhtml_core::KeyframeStep`
+    /// Convert accumulated properties into a `ztml_core::KeyframeStep`
     pub fn to_keyframe_step(&self) -> KeyframeStep {
         let mut step = KeyframeStep::new(&self.selector);
         for (k, v) in &self.properties {

@@ -442,7 +442,7 @@ wheels = [
 ]
 
 [[package]]
-name = "zhtml"
+name = "ztml"
 source = { editable = "." }
 dependencies = [
     { name = "starlette" },
