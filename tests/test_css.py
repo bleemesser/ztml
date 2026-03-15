@@ -1,6 +1,6 @@
 """Tests for CSS rule building, keyframes, media queries, and style rendering."""
 
-from ztml import render, Style, Rule, Media, Keyframes, Frame, RawCss, InlineStyle
+from ztml import render, Style, Rule, Media, Keyframes, Frame, RawCss, InlineStyle, Div
 
 class TestRule:
     def test_basic_rule(self):
@@ -155,5 +155,8 @@ class TestStyleTag:
 class TestInlineStyle:
     def test_inline_style_basic(self):
         s = InlineStyle().color("red").font_size("16px")
-        # InlineStyle should be usable somehow - test it doesn't crash
         assert s is not None
+
+    def test_inline_style_on_element(self):
+        html = render(Div("styled").style(InlineStyle().color("red").font_weight("bold")))
+        assert 'style="color: red; font-weight: bold"' in html

@@ -48,8 +48,17 @@ impl PyElement {
         for c in classes { slf.inner.append_class(&c); }
         slf
     }
-    fn style(mut slf: PyRefMut<'_, Self>, value: String) -> PyRefMut<'_, Self> {
-        slf.inner.set_attr("style", AttrValue::String(value)); slf
+    fn style<'a>(mut slf: PyRefMut<'a, Self>, value: Bound<'a, PyAny>) -> PyResult<PyRefMut<'a, Self>> {
+        let css_string = if let Ok(s) = value.extract::<String>() {
+            s
+        } else if let Ok(inline) = value.downcast::<crate::css::PyInlineStyle>() {
+            let borrowed = inline.borrow();
+            borrowed.properties.iter().map(|(k, v)| format!("{}: {}", k, v)).collect::<Vec<_>>().join("; ")
+        } else {
+            return Err(pyo3::exceptions::PyTypeError::new_err("style() expects a str or InlineStyle"));
+        };
+        slf.inner.set_attr("style", AttrValue::String(css_string));
+        Ok(slf)
     }
     #[pyo3(name = "title")]
     fn set_title(mut slf: PyRefMut<'_, Self>, value: String) -> PyRefMut<'_, Self> {
