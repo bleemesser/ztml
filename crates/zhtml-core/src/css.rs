@@ -60,4 +60,9 @@ impl KeyframeStep {
             properties: IndexMap::new(),
         }
     }
+
+    /// Set a CSS property on this keyframe step
+    pub fn set_property(&mut self, name: impl Into<String>, value: impl Into<String>) {
+        self.properties.insert(name.into(), value.into());
+    }
 }
