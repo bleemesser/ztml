@@ -57,7 +57,7 @@ Style(
     Rule(".container > .sidebar").width("250px").flex_shrink("0"),
     Rule(".container > .main").flex("1"),
 
-    Media("(max-width: 768px)",
+    Media("max-width: 768px",
         Rule(".container").flex_direction("column"),
         Rule(".container > .sidebar").width("100%"),
     ),
