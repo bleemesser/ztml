@@ -1,0 +1,33 @@
+[build-system]
+requires = ["maturin>=1.12,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "zhtml"
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+    "starlette>=0.40",
+    "uvicorn[standard]>=0.30",
+]
+dynamic = ["version"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "httpx>=0.28",
+    "maturin>=1.12,<2.0",
+]
+
+[tool.maturin]
+manifest-path = "crates/zhtml-python/Cargo.toml"
+module-name = "zhtml._core"
+python-source = "."
+python-packages = ["zhtml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
