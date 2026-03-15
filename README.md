@@ -125,7 +125,7 @@ def page():
         ),
         Body(
             H1("Counter"),
-            P("0", id="count"),
+            P("0").id("count"),
             Button("Increment").id("increment"),
             Script(
                 On.click("#increment", """
@@ -153,8 +153,8 @@ def get():
         Head(Title("Counter")),
         Body(
             H1("Counter"),
-            P("0", id="count"),
-            Button("Increment", hx_post="/increment", hx_target="#count"),
+            P("0").id("count"),
+            Button("Increment").hx_post("/increment").hx_target("#count"),
         ),
     )
 
@@ -164,7 +164,7 @@ count = 0
 def post():
     global count
     count += 1
-    return P(str(count), id="count")
+    return P(str(count)).id("count")
 
 serve()  # localhost:5001
 ```
@@ -196,6 +196,19 @@ To build a distributable wheel:
 ```bash
 maturin build --release
 # Output in target/wheels/
+```
+
+## Examples
+
+```bash
+# Generate a static HTML page to stdout 
+uv run examples/static_page.py > page.html # (open page.html in your browser!)
+
+# HTMX counter app (localhost:5001)
+uv run examples/counter_server.py
+
+# HTMX todo app (localhost:5001)
+uv run examples/todo_server.py
 ```
 
 ## Running Tests

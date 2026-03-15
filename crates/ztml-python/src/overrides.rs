@@ -12,6 +12,10 @@ use pyo3::prelude::*;
 use pyo3::types::{PyFloat, PyList, PyString};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pyfunction, gen_stub_pymethods};
 use ztml_core::element::{AttrValue, Child, Element};
+use ztml_core::render::{render_script, render_stylesheet};
+
+use crate::css::PyStyle;
+use crate::script::PyScript;
 
 /// Wrap a core `Element` for Python exposure with chainable attribute setters
 #[gen_stub_pyclass]
@@ -358,6 +362,33 @@ fn collect_child(obj: &Bound<'_, pyo3::PyAny>, out: &mut Vec<Child>) -> PyResult
         out.push(Child::Fragment(frag.children.clone()));
     } else if let Ok(raw) = obj.extract::<PyRef<'_, Raw>>() {
         out.push(Child::Raw(raw.0.clone()));
+    } else if let Ok(style) = obj.extract::<PyRef<'_, PyStyle>>() {
+        let css = render_stylesheet(&style.items);
+        out.push(Child::Raw(format!("<style>{css}</style>")));
+    } else if let Ok(script) = obj.extract::<PyRef<'_, PyScript>>() {
+        let mut s = String::from("<script");
+        for (name, value) in &script.element.attrs {
+            match value {
+                AttrValue::String(v) => {
+                    s.push(' ');
+                    s.push_str(name);
+                    s.push_str("=\"");
+                    s.push_str(v);
+                    s.push('"');
+                }
+                AttrValue::Bool(true) => {
+                    s.push(' ');
+                    s.push_str(name);
+                }
+                AttrValue::Bool(false) => {}
+            }
+        }
+        s.push('>');
+        if !script.items.is_empty() {
+            s.push_str(&render_script(&script.items));
+        }
+        s.push_str("</script>");
+        out.push(Child::Raw(s));
     } else if let Ok(list) = obj.cast::<PyList>() {
         for item in list.iter() {
             collect_child(&item, out)?;
