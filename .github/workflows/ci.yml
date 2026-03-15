@@ -116,7 +116,4 @@ jobs:
           pattern: '{wheel-*,sdist}'
           merge-multiple: true
           path: dist/
-      - uses: PyO3/maturin-action@v1
-        with:
-          command: upload
-          args: --non-interactive dist/*
+      - uses: pypa/gh-action-pypi-publish@release/v1
