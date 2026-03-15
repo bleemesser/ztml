@@ -1,9 +1,8 @@
-*target/
+*target
 *.DS_Store
 zhtml/*
 !zhtml/__init__.py
 !zhtml/server.py
-specs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -62,6 +61,8 @@ coverage.xml
 # Django stuff:
 *.log
 *.pot
+
+.DS_Store
 
 # Sphinx documentation
 docs/_build/
