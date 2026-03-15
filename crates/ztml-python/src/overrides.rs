@@ -51,7 +51,7 @@ impl PyElement {
     fn style<'a>(mut slf: PyRefMut<'a, Self>, value: Bound<'a, PyAny>) -> PyResult<PyRefMut<'a, Self>> {
         let css_string = if let Ok(s) = value.extract::<String>() {
             s
-        } else if let Ok(inline) = value.downcast::<crate::css::PyInlineStyle>() {
+        } else if let Ok(inline) = value.cast::<crate::css::PyInlineStyle>() {
             let borrowed = inline.borrow();
             borrowed.properties.iter().map(|(k, v)| format!("{}: {}", k, v)).collect::<Vec<_>>().join("; ")
         } else {
