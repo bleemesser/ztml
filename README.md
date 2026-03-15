@@ -103,6 +103,32 @@ Script(
 
 Available event helpers: `On.click`, `On.submit`, `On.change`, `On.input`, `On.keydown`, `On.keyup`, `On.mouseover`, `On.mouseout`, `On.focus`, `On.blur`, `On.document_ready`, and `On.event` for custom events.
 
+## Custom Components
+
+Any Python object with a `__ztml_render__` method can be used as a renderable component. The method should return a ztml element.
+
+```python
+class Card:
+    def __init__(self, title, body):
+        self.title = title
+        self.body = body
+
+    def __ztml_render__(self):
+        return Div(
+            H2(self.title),
+            P(self.body),
+        ).cls("card")
+
+# Use directly in render()
+print(render(Card("Hello", "World")))
+
+# Or nest inside other elements
+page = Div(
+    Card("First", "Some content"),
+    Card("Second", "More content"),
+).cls("cards")
+```
+
 ## Putting It Together
 
 A complete page with HTML, CSS, and JS:
@@ -206,6 +232,9 @@ uv run examples/static_page.py > page.html # (open page.html in your browser!)
 
 # HTMX counter app (localhost:5001)
 uv run examples/counter_server.py
+
+# Custom components demo
+uv run examples/components.py > components.html
 
 # HTMX todo app (localhost:5001)
 uv run examples/todo_server.py
