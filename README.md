@@ -243,7 +243,7 @@ uv run examples/todo_server.py
 ## Running Tests
 
 ```bash
-uv run pytest
+uv run python -m pytest
 
 # Rust unit tests
 cargo test -p ztml-core
