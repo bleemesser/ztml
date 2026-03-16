@@ -1,6 +1,7 @@
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use ztml_core::element::{AttrValue, Element};
+use ztml_core::render::render_script;
 use ztml_core::script::{EventHandler, ScriptItem};
 
 /// Top-level `<script>` container accepting `EventHandler` or `Raw` JS items
@@ -11,9 +12,41 @@ pub struct PyScript {
     pub element: Element,
 }
 
+impl PyScript {
+    pub fn to_html(&self) -> String {
+        let mut out = String::from("<script");
+        for (name, value) in &self.element.attrs {
+            match value {
+                AttrValue::String(s) => {
+                    out.push(' ');
+                    out.push_str(name);
+                    out.push_str("=\"");
+                    out.push_str(s);
+                    out.push('"');
+                }
+                AttrValue::Bool(true) => {
+                    out.push(' ');
+                    out.push_str(name);
+                }
+                AttrValue::Bool(false) => {}
+            }
+        }
+        out.push('>');
+        if !self.items.is_empty() {
+            out.push_str(&render_script(&self.items));
+        }
+        out.push_str("</script>");
+        out
+    }
+}
+
 #[gen_stub_pymethods]
 #[pymethods]
 impl PyScript {
+    fn __html__(&self) -> String {
+        self.to_html()
+    }
+
     #[new]
     #[pyo3(signature = (*args))]
     fn new(args: &Bound<'_, pyo3::types::PyTuple>) -> PyResult<Self> {

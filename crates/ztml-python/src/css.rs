@@ -4,6 +4,7 @@ use indexmap::IndexMap;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use ztml_core::css::{CssItem, CssRule, KeyframeStep, Keyframes, MediaQuery};
+use ztml_core::render::render_stylesheet;
 
 /// Top-level `<style>` container accepting `Rule`, `Media`, `Keyframes`, or `RawCss` items
 #[gen_stub_pyclass]
@@ -12,9 +13,20 @@ pub struct PyStyle {
     pub items: Vec<CssItem>,
 }
 
+impl PyStyle {
+    pub fn to_html(&self) -> String {
+        let css = render_stylesheet(&self.items);
+        format!("<style>{css}</style>")
+    }
+}
+
 #[gen_stub_pymethods]
 #[pymethods]
 impl PyStyle {
+    fn __html__(&self) -> String {
+        self.to_html()
+    }
+
     #[new]
     #[pyo3(signature = (*args))]
     fn new(args: &Bound<'_, pyo3::types::PyTuple>) -> PyResult<Self> {

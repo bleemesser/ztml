@@ -12,7 +12,7 @@ use pyo3::prelude::*;
 use pyo3::types::{PyFloat, PyList, PyString};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pyfunction, gen_stub_pymethods};
 use ztml_core::element::{AttrValue, Child, Element};
-use ztml_core::render::{render_script, render_stylesheet};
+use ztml_core::render::{render_child_into, render_element};
 
 use crate::css::PyStyle;
 use crate::script::PyScript;
@@ -39,6 +39,10 @@ impl PyElement {
 #[gen_stub_pymethods]
 #[pymethods]
 impl PyElement {
+    fn __html__(&self) -> String {
+        render_element(&self.inner)
+    }
+
     // Global HTML attributes:
     fn id(mut slf: PyRefMut<'_, Self>, value: String) -> PyRefMut<'_, Self> {
         slf.inner.set_attr("id", AttrValue::String(value)); slf
@@ -298,6 +302,14 @@ pub struct Fragment {
 #[gen_stub_pymethods]
 #[pymethods]
 impl Fragment {
+    fn __html__(&self) -> String {
+        let mut out = String::new();
+        for child in &self.children {
+            render_child_into(child, &mut out);
+        }
+        out
+    }
+
     #[new]
     #[pyo3(signature = (*args))]
     fn new(args: &Bound<'_, pyo3::types::PyTuple>) -> PyResult<Self> {
@@ -315,6 +327,10 @@ pub struct Raw(pub String);
 #[gen_stub_pymethods]
 #[pymethods]
 impl Raw {
+    fn __html__(&self) -> String {
+        self.0.clone()
+    }
+
     #[new]
     fn new(text: &str) -> Self { Self(text.to_string()) }
 }
@@ -372,32 +388,9 @@ fn collect_child(obj: &Bound<'_, pyo3::PyAny>, out: &mut Vec<Child>) -> PyResult
     } else if let Ok(raw) = obj.extract::<PyRef<'_, Raw>>() {
         out.push(Child::Raw(raw.0.clone()));
     } else if let Ok(style) = obj.extract::<PyRef<'_, PyStyle>>() {
-        let css = render_stylesheet(&style.items);
-        out.push(Child::Raw(format!("<style>{css}</style>")));
+        out.push(Child::Raw(style.to_html()));
     } else if let Ok(script) = obj.extract::<PyRef<'_, PyScript>>() {
-        let mut s = String::from("<script");
-        for (name, value) in &script.element.attrs {
-            match value {
-                AttrValue::String(v) => {
-                    s.push(' ');
-                    s.push_str(name);
-                    s.push_str("=\"");
-                    s.push_str(v);
-                    s.push('"');
-                }
-                AttrValue::Bool(true) => {
-                    s.push(' ');
-                    s.push_str(name);
-                }
-                AttrValue::Bool(false) => {}
-            }
-        }
-        s.push('>');
-        if !script.items.is_empty() {
-            s.push_str(&render_script(&script.items));
-        }
-        s.push_str("</script>");
-        out.push(Child::Raw(s));
+        out.push(Child::Raw(script.to_html()));
     } else if let Ok(list) = obj.cast::<PyList>() {
         for item in list.iter() {
             collect_child(&item, out)?;

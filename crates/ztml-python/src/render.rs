@@ -1,6 +1,6 @@
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::gen_stub_pyfunction;
-use ztml_core::render::{render_child_into, render_element, render_script, render_stylesheet};
+use ztml_core::render::{render_child_into, render_element};
 
 use crate::css::PyStyle;
 use crate::overrides::{Fragment, PyElement};
@@ -20,32 +20,9 @@ pub fn render(obj: &Bound<'_, pyo3::PyAny>) -> PyResult<String> {
         }
         Ok(out)
     } else if let Ok(style) = obj.extract::<PyRef<'_, PyStyle>>() {
-        let css = render_stylesheet(&style.items);
-        Ok(format!("<style>{css}</style>"))
+        Ok(style.to_html())
     } else if let Ok(script) = obj.extract::<PyRef<'_, PyScript>>() {
-        let mut out = String::from("<script");
-        for (name, value) in &script.element.attrs {
-            match value {
-                ztml_core::element::AttrValue::String(s) => {
-                    out.push(' ');
-                    out.push_str(name);
-                    out.push_str("=\"");
-                    out.push_str(s);
-                    out.push('"');
-                }
-                ztml_core::element::AttrValue::Bool(true) => {
-                    out.push(' ');
-                    out.push_str(name);
-                }
-                ztml_core::element::AttrValue::Bool(false) => {}
-            }
-        }
-        out.push('>');
-        if !script.items.is_empty() {
-            out.push_str(&render_script(&script.items));
-        }
-        out.push_str("</script>");
-        Ok(out)
+        Ok(script.to_html())
     } else if obj.hasattr("__ztml_render__")? {
         let result = obj.call_method0("__ztml_render__")?;
         render(&result)
