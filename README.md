@@ -218,11 +218,92 @@ serve()  # localhost:5001
 ```
 
 Key features:
-- **Method inference** — the HTTP method is inferred from the function name (`get`, `post`, `put`, `delete`, etc.)
-- **Auto HTMX** — full-page responses (`<html>`) get the HTMX script auto-injected
+- **Method inference** — HTTP method inferred from function name (`get`, `post`, `put`, `delete`, etc.)
+- **Auto HTMX** — full-page responses get the HTMX script auto-injected
 - **Path parameters** — `@rt('/greet/{name}')` extracts `name` as a function argument
-- **Request access** — add a `request` parameter to access the Starlette `Request` object
-- **Element rendering** — handlers return ztml elements, automatically rendered to HTML
+- **Request access** — add `request` to access the Starlette `Request` object
+- **Element rendering** — return ztml elements, automatically rendered to HTML
+
+### Form Data & File Uploads
+
+Name a parameter `form_data` or `files` and it's automatically parsed:
+
+```python
+@rt('/submit', methods=['POST'])
+async def submit(form_data):
+    name = form_data['name']
+    return Div(f"Hello, {name}")
+```
+
+### Sessions
+
+Pass `session_secret` to enable cookie-backed sessions. Add `session` to any handler signature:
+
+```python
+from ztml.server import ZTMLApp, serve
+
+app = ZTMLApp(session_secret="your-secret-key")
+
+@app.route('/login', methods=['POST'])
+def login(session, form_data):
+    session['user'] = form_data['username']
+    return Div("Logged in")
+
+@app.route('/profile')
+def profile(session):
+    return Div(f"Hello, {session.get('user', 'guest')}")
+
+serve(target=app)
+```
+
+For raw cookies (outside of sessions), use Starlette's built-in `response.set_cookie()` and `request.cookies.get()`.
+
+### Before Hooks
+
+Run checks before a route handler executes. Return a `Response` to short-circuit:
+
+```python
+from starlette.responses import RedirectResponse
+
+def require_auth(session):
+    if not session.get('user'):
+        return RedirectResponse('/login', status_code=303)
+
+@app.route('/dashboard', before=[require_auth])
+def dashboard(session):
+    return Div(f"Welcome, {session['user']}")
+```
+
+### Live Reload
+
+Set `dev=True` to enable uvicorn file-watching and automatic browser refresh on save:
+
+```python
+app = ZTMLApp(dev=True)
+# serve() automatically passes reload=True to uvicorn in dev mode
+```
+
+### WebSockets & SSE
+
+```python
+from ztml.server import ZTMLApp, EventStream
+
+app = ZTMLApp()
+
+@app.ws('/echo')
+async def echo(websocket):
+    await websocket.accept()
+    data = await websocket.receive_text()
+    await websocket.send_text(f"echo: {data}")
+    await websocket.close()
+
+@app.route('/stream')
+async def get():
+    async def updates():
+        yield Div("first update")
+        yield Div("second update")
+    return EventStream(updates()).response()
+```
 
 ## Building from Source
 
@@ -260,6 +341,15 @@ uv run examples/components.py > components.html
 
 # HTMX todo app (localhost:5001)
 uv run examples/todo_server.py
+
+# Auth demo with sessions & before hooks (localhost:5001)
+uv run examples/auth_app.py
+
+# WebSocket chat room (localhost:5001)
+uv run examples/ws_chat.py
+
+# SSE live clock (localhost:5001)
+uv run examples/sse_clock.py
 ```
 
 ## Benchmarks

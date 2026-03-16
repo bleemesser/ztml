@@ -81,4 +81,5 @@ def reset():
     return P(str(count)).id("count")
 
 
-serve()
+if __name__ == "__main__":
+    serve()

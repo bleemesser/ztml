@@ -95,10 +95,9 @@ def get():
 
 
 @rt("/add", methods=["POST"])
-async def add_todo(request):
+async def add_todo(form_data):
     global next_id
-    form = await request.form()
-    text = form.get("text", "").strip()
+    text = form_data.get("text", "").strip()
     if text:
         todos.append({"id": next_id, "text": text, "done": False})
         next_id += 1
@@ -121,4 +120,5 @@ def delete_todo(todo_id):
     return todo_list()
 
 
-serve()
+if __name__ == "__main__":
+    serve()
