@@ -23,6 +23,7 @@ dependencies = [
     "starlette>=0.40",
     "uvicorn[standard]>=0.30",
     "python-multipart>=0.0.9",
+    "itsdangerous>=2.0",
 ]
 dynamic = ["version"]
 
