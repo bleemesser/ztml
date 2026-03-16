@@ -257,6 +257,29 @@ cargo test -p ztml-core
 - **CSS property methods** — on `Rule`, `InlineStyle`, and `Frame`
 - **Enum classes** — for CSS keyword values and HTML attribute values
 
+## Releasing
+
+CI runs on every push to `main` and on tags matching `v*`.
+
+**Regular push** (tests only):
+
+```bash
+git push
+```
+
+**Publishing a new version** (build + publish to PyPI):
+
+1. Bump the version in `crates/ztml-core/Cargo.toml` and `crates/ztml-python/Cargo.toml`
+2. Commit, tag, and push:
+
+```bash
+git add -A && git commit -m "bump version to 0.x.y"
+git tag v0.x.y
+git push && git push origin v0.x.y
+```
+
+The `v*` tag triggers the full build matrix (Linux, macOS, Windows) and publishes wheels to PyPI via trusted publishing.
+
 ## License
 
 [MIT](LICENSE)
