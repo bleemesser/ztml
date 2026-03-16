@@ -43,6 +43,10 @@ impl PyElement {
         render_element(&self.inner)
     }
 
+    fn _repr_html_(&self) -> String {
+        render_element(&self.inner)
+    }
+
     // Global HTML attributes:
     fn id(mut slf: PyRefMut<'_, Self>, value: String) -> PyRefMut<'_, Self> {
         slf.inner.set_attr("id", AttrValue::String(value)); slf
@@ -310,6 +314,10 @@ impl Fragment {
         out
     }
 
+    fn _repr_html_(&self) -> String {
+        self.__html__()
+    }
+
     #[new]
     #[pyo3(signature = (*args))]
     fn new(args: &Bound<'_, pyo3::types::PyTuple>) -> PyResult<Self> {
@@ -329,6 +337,10 @@ pub struct Raw(pub String);
 impl Raw {
     fn __html__(&self) -> String {
         self.0.clone()
+    }
+
+    fn _repr_html_(&self) -> String {
+        self.__html__()
     }
 
     #[new]

@@ -47,6 +47,10 @@ impl PyScript {
         self.to_html()
     }
 
+    fn _repr_html_(&self) -> String {
+        self.__html__()
+    }
+
     #[new]
     #[pyo3(signature = (*args))]
     fn new(args: &Bound<'_, pyo3::types::PyTuple>) -> PyResult<Self> {
