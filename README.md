@@ -129,6 +129,28 @@ page = Div(
 ).cls("cards")
 ```
 
+### Jupyter & Jinja2 Compatibility
+
+All built-in ztml elements implement `_repr_html_()` (for Jupyter notebook display) and `__html__()` (for Jinja2/MarkupSafe auto-escaping). Evaluating an element at the end of a Jupyter cell will render it as HTML automatically.
+
+For custom components, add these methods using `render()`:
+
+```python
+class Card:
+    def __init__(self, title, body):
+        self.title = title
+        self.body = body
+
+    def __ztml_render__(self):
+        return Div(H2(self.title), P(self.body)).cls("card")
+
+    def __html__(self):
+        return render(self)
+
+    def _repr_html_(self):
+        return render(self)
+```
+
 ## Putting It Together
 
 A complete page with HTML, CSS, and JS:
@@ -238,6 +260,34 @@ uv run examples/components.py > components.html
 
 # HTMX todo app (localhost:5001)
 uv run examples/todo_server.py
+```
+
+## Benchmarks
+
+Compared against [FastHTML](https://fastht.ml/) building and rendering nested HTML element trees:
+
+```
+Scenario         Library      Elements   Build (ms)   Render (ms)   Total (ms)
+---------------------------------------------------------------------------
+10x50            ztml             1040         1.44          0.09         1.54
+10x50            fasthtml         1040        14.72          2.62        17.35
+                             speedup: build 10.2x, render 28.5x, total 11.3x
+
+50x100           ztml            10200        14.65          0.90        15.55
+50x100           fasthtml        10200       151.36         26.12       177.61
+                             speedup: build 10.3x, render 28.9x, total 11.4x
+
+100x200          ztml            40400        58.04          3.63        61.69
+100x200          fasthtml        40400       710.79        106.00       816.57
+                             speedup: build 12.2x, render 29.2x, total 13.2x
+```
+^ M3 Pro MacBook Pro
+
+Run the benchmark yourself:
+
+```bash
+uv pip install python-fasthtml
+uv run benchmarks/bench.py
 ```
 
 ## Running Tests
