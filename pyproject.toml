@@ -42,7 +42,7 @@ manifest-path = "crates/ztml-python/Cargo.toml"
 module-name = "ztml._core"
 python-source = "."
 python-packages = ["ztml"]
-include = ["ztml/_core/*.pyi", "specs/**"]
+include = ["ztml/_core/*.pyi", "specs/**", "LICENSE"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
