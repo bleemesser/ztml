@@ -193,12 +193,13 @@ ztml includes a built-in server for HTMX-powered apps, built on Starlette and Uv
 
 ```python
 from ztml import *
+from ztml.scripts import HTMX
 from ztml.server import rt, serve
 
 @rt('/')
 def get():
     return Html(
-        Head(Title("Counter")),
+        Head(Title("Counter"), HTMX),
         Body(
             H1("Counter"),
             P("0").id("count"),
@@ -219,7 +220,6 @@ serve()  # localhost:5001
 
 Key features:
 - **Method inference** — HTTP method inferred from function name (`get`, `post`, `put`, `delete`, etc.)
-- **Auto HTMX** — full-page responses get the HTMX script auto-injected
 - **Path parameters** — `@rt('/greet/{name}')` extracts `name` as a function argument
 - **Request access** — add `request` to access the Starlette `Request` object
 - **Element rendering** — return ztml elements, automatically rendered to HTML

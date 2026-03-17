@@ -2,6 +2,7 @@
 *.DS_Store
 ztml/*
 !ztml/__init__.py
+!ztml/scripts.py
 !ztml/server.py
 !ztml/_core/
 ztml/_core/*

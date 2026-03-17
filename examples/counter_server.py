@@ -1,6 +1,7 @@
 """HTMX-powered counter app using the built-in server."""
 
 from ztml import *
+from ztml.scripts import HTMX
 from ztml.server import rt, serve
 
 count = 0
@@ -10,7 +11,7 @@ count = 0
 def get():
     return Html(
         Head(
-            Title("Counter"),
+            Title("Counter"), HTMX,
             Style(
                 Rule("body")
                     .font_family("system-ui, sans-serif")

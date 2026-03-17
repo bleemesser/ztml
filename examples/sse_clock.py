@@ -3,11 +3,10 @@
 from datetime import datetime
 
 from ztml import *
+from ztml.scripts import HTMX, HTMX_SSE
 from ztml.server import ZTMLApp, NamedEventStream, serve
 
 app = ZTMLApp(dev=True)
-
-SSE_EXT = '<script src="https://unpkg.com/htmx-ext-sse@2.2.2/sse.js"></script>'
 
 clock = NamedEventStream(interval=1)
 
@@ -58,7 +57,7 @@ def get():
                     .color("#6b7280")
                     .margin_top("0.5rem"),
             ),
-            Raw(SSE_EXT),
+            HTMX, HTMX_SSE,
         ),
         Body(
             Div(

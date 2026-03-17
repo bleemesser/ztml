@@ -1,6 +1,7 @@
 """A simple HTMX-powered todo app."""
 
 from ztml import *
+from ztml.scripts import HTMX
 from ztml.server import rt, serve
 
 todos: list[dict] = []
@@ -24,7 +25,7 @@ def todo_list():
 def get():
     return Html(
         Head(
-            Title("Todos"),
+            Title("Todos"), HTMX,
             Style(
                 Rule("*").box_sizing("border-box").margin("0").padding("0"),
                 Rule("body")

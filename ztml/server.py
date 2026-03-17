@@ -16,8 +16,6 @@ from starlette.websockets import WebSocket, WebSocketDisconnect
 
 from ztml._core import render
 
-HTMX_SCRIPT = '<script src="https://unpkg.com/htmx.org"></script>'
-
 RELOAD_SCRIPT = """<script>
 (function(){var s=new WebSocket("ws://"+location.host+"/_ztml/reload");
 s.onclose=function(){setTimeout(function(){location.reload()},300)};})();
@@ -37,8 +35,6 @@ def _inject_head(html: str, *, dev: bool = False) -> str:
     if not lower.startswith("<html") and not lower.startswith("<!doctype"):
         return html
     scripts = ""
-    if "htmx.org" not in html:
-        scripts += HTMX_SCRIPT
     if dev:
         scripts += RELOAD_SCRIPT
     if not scripts:

@@ -10,42 +10,20 @@ from ztml.server import ZTMLApp, _inject_head, EventStream, NamedEventStream
 
 
 class TestHeadInjection:
-    def test_injects_into_full_html(self):
+    def test_no_htmx_auto_injection(self):
         html = "<html><head></head><body></body></html>"
         result = _inject_head(html)
-        assert "htmx.org" in result
-
-    def test_injects_after_opening_head(self):
-        html = "<html><head><title>T</title></head><body></body></html>"
-        result = _inject_head(html)
-        assert result.index("htmx.org") > result.index("<head>")
-        assert result.index("htmx.org") < result.index("<title>")
+        assert "htmx.org" not in result
 
     def test_no_inject_for_fragment(self):
         html = "<div>partial</div>"
         result = _inject_head(html)
-        assert "htmx.org" not in result
-
-    def test_no_double_inject(self):
-        html = '<html><head><script src="https://unpkg.com/htmx.org"></script></head><body></body></html>'
-        result = _inject_head(html)
-        assert result.count("htmx.org") == 1
-
-    def test_doctype_triggers_injection(self):
-        html = "<!DOCTYPE html><html><head></head><body></body></html>"
-        result = _inject_head(html)
-        assert "htmx.org" in result
-
-    def test_case_insensitive_html_tag(self):
-        html = "<HTML><HEAD></HEAD><BODY></BODY></HTML>"
-        result = _inject_head(html)
-        assert "htmx.org" in result
+        assert result == html
 
     def test_dev_mode_injects_reload_script(self):
         html = "<html><head></head><body></body></html>"
         result = _inject_head(html, dev=True)
         assert "/_ztml/reload" in result
-        assert "htmx.org" in result
 
     def test_no_reload_script_without_dev(self):
         html = "<html><head></head><body></body></html>"
@@ -155,22 +133,13 @@ class TestZTMLApp:
         resp = client.get("/async")
         assert "async result" in resp.text
 
-    def test_htmx_injected_for_full_page(self):
+    def test_no_htmx_auto_injection(self):
         @self.app.route("/")
         def get():
             return Html(Head(Title("T")), Body(Div("hi")))
 
         client = TestClient(self.app)
         resp = client.get("/")
-        assert "htmx.org" in resp.text
-
-    def test_htmx_not_injected_for_fragment(self):
-        @self.app.route("/partial")
-        def get():
-            return Div("partial")
-
-        client = TestClient(self.app)
-        resp = client.get("/partial")
         assert "htmx.org" not in resp.text
 
     def test_fragment_rendering(self):
