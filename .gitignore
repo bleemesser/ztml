@@ -8,6 +8,7 @@ ztml/*
 ztml/_core/*
 !ztml/_core/__init__.pyi
 *.html
+site/
 uv.lock
 
 # Byte-compiled / optimized / DLL files

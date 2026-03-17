@@ -1,0 +1,49 @@
+site_name: ztml
+site_url: https://bleemesser.github.io/ztml/
+site_description: A Rust-backed framework for building websites in pure Python
+repo_url: https://github.com/bleemesser/ztml
+repo_name: bleemesser/ztml
+
+theme:
+  name: material
+  palette:
+    scheme: default
+    primary: white
+    accent: deep orange
+  font: false
+  features:
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+    - search.highlight
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - attr_list
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Guide:
+    - HTML Elements: guide/html.md
+    - CSS Styling: guide/css.md
+    - JavaScript: guide/js.md
+    - Custom Components: guide/components.md
+  - Server:
+    - Routing: server/routing.md
+    - Forms & Uploads: server/forms.md
+    - Sessions & Auth: server/sessions.md
+    - Realtime (SSE & WebSockets): server/realtime.md
+  - Reference:
+    - Security & Escaping: reference/security.md
+    - CSS Enums: reference/enums.md
+  - Examples: examples.md

@@ -1,6 +1,8 @@
 # ztml
 
-A Rust-backed framework for building websites in pure Python. ZTML allows you to define HTML/CSS/JS using only Python expressions with as much autocompletion support as I could reasonably add. Inspired by [FastHTML](https://fastht.ml/).
+A Rust-backed framework for building websites in pure Python. Define HTML, CSS, and JS using Python expressions with full autocompletion. Inspired by [FastHTML](https://fastht.ml/).
+
+**Read my [documentation](https://bleemesser.github.io/ztml/)**
 
 ## Install
 
@@ -8,9 +10,7 @@ A Rust-backed framework for building websites in pure Python. ZTML allows you to
 pip install ztml
 ```
 
-## HTML
-
-Every HTML element has a corresponding constructor function. Attributes are set via chained builder methods. Call `render()` to get an HTML string.
+## Quick example
 
 ```python
 from ztml import *
@@ -27,169 +27,19 @@ page = render(
 )
 ```
 
-Attributes chain naturally:
-
-```python
-Div(
-    Input().type("text").name("q").placeholder("Search...").autofocus(),
-    Button("Go").type("submit"),
-).cls("search-box").id("search")
-```
-
-Use `Fragment` to group elements without a wrapper tag, and `Raw` to inject unescaped HTML:
-
-```python
-Fragment(
-    H1("Title"),
-    P("Paragraph"),
-    Raw("<hr/>"),
-)
-```
-
-## Style
-
-Build CSS with `Rule`, `Media`, `Keyframes`, and `Frame`. Wrap them in `Style()` to render a `<style>` block.
+Every HTML element has a constructor. Attributes are set via chained builder methods. CSS is built with `Rule`, `Media`, and `Keyframes`, with 400+ typed property methods generated from W3C specs:
 
 ```python
 Style(
     Rule("body").margin("0").font_family("system-ui, sans-serif"),
     Rule(".container").display("flex").gap("1rem").padding("2rem"),
-    Rule(".container > .sidebar").width("250px").flex_shrink("0"),
-    Rule(".container > .main").flex("1"),
-
     Media("max-width: 768px",
         Rule(".container").flex_direction("column"),
-        Rule(".container > .sidebar").width("100%"),
     ),
-
-    Keyframes("fadeIn",
-        Frame("from").opacity("0").transform("translateY(-10px)"),
-        Frame("to").opacity("1").transform("translateY(0)"),
-    ),
-
-    Rule(".card").animation("fadeIn 0.3s ease-out"),
 )
 ```
 
-CSS property methods are generated from W3C specs — every standard property is available with autocompletion. Use `.prop("custom-property", "value")` for anything not covered.
-
-Inline styles work too:
-
-```python
-Div("styled").style(InlineStyle().color("red").font_weight("bold"))
-```
-
-## Script
-
-Build JavaScript with `On` event handlers and `RawJs`. Wrap them in `Script()` to render a `<script>` block.
-
-```python
-Script(
-    On.click("#increment", """
-        let count = document.getElementById('count');
-        count.textContent = parseInt(count.textContent) + 1;
-    """),
-
-    On.document_ready("console.log('page loaded')"),
-
-    On.submit("#my-form", """
-        event.preventDefault();
-        alert('submitted!');
-    """),
-
-    RawJs("function greet(name) { alert('Hello, ' + name); }"),
-)
-```
-
-Available event helpers: `On.click`, `On.submit`, `On.change`, `On.input`, `On.keydown`, `On.keyup`, `On.mouseover`, `On.mouseout`, `On.focus`, `On.blur`, `On.document_ready`, and `On.event` for custom events.
-
-## Custom Components
-
-Any Python object with a `__ztml_render__` method can be used as a renderable component. The method should return a ztml element.
-
-```python
-class Card:
-    def __init__(self, title, body):
-        self.title = title
-        self.body = body
-
-    def __ztml_render__(self):
-        return Div(
-            H2(self.title),
-            P(self.body),
-        ).cls("card")
-
-# Use directly in render()
-print(render(Card("Hello", "World")))
-
-# Or nest inside other elements
-page = Div(
-    Card("First", "Some content"),
-    Card("Second", "More content"),
-).cls("cards")
-```
-
-### Jupyter & Jinja2 Compatibility
-
-All built-in ztml elements implement `_repr_html_()` (for Jupyter notebook display) and `__html__()` (for Jinja2/MarkupSafe auto-escaping). Evaluating an element at the end of a Jupyter cell will render it as HTML automatically.
-
-For custom components, add these methods using `render()`:
-
-```python
-class Card:
-    def __init__(self, title, body):
-        self.title = title
-        self.body = body
-
-    def __ztml_render__(self):
-        return Div(H2(self.title), P(self.body)).cls("card")
-
-    def __html__(self):
-        return render(self)
-
-    def _repr_html_(self):
-        return render(self)
-```
-
-## Putting It Together
-
-A complete page with HTML, CSS, and JS:
-
-```python
-from ztml import *
-
-def page():
-    return Html(
-        Head(
-            Meta().charset("utf-8"),
-            Title("Counter"),
-            Style(
-                Rule("body").font_family("system-ui").display("flex")
-                    .justify_content("center").padding("4rem"),
-                Rule("button").padding("0.5rem 1rem").font_size("1.2rem")
-                    .cursor("pointer").border_radius("4px"),
-                Rule("#count").font_size("3rem").margin("1rem 0"),
-            ),
-        ),
-        Body(
-            H1("Counter"),
-            P("0").id("count"),
-            Button("Increment").id("increment"),
-            Script(
-                On.click("#increment", """
-                    let el = document.getElementById('count');
-                    el.textContent = parseInt(el.textContent) + 1;
-                """),
-            ),
-        ),
-    )
-
-print(render(page()))
-```
-
-## Server
-
-ztml includes a built-in server for HTMX-powered apps, built on Starlette and Uvicorn.
+The built-in server handles routing, sessions, SSE, and WebSockets:
 
 ```python
 from ztml import *
@@ -218,137 +68,16 @@ def post():
 serve()  # localhost:5001
 ```
 
-Key features:
-- **Method inference** — HTTP method inferred from function name (`get`, `post`, `put`, `delete`, etc.)
-- **Path parameters** — `@rt('/greet/{name}')` extracts `name` as a function argument
-- **Request access** — add `request` to access the Starlette `Request` object
-- **Element rendering** — return ztml elements, automatically rendered to HTML
-
-### Form Data & File Uploads
-
-Name a parameter `form_data` or `files` and it's automatically parsed:
-
-```python
-@rt('/submit', methods=['POST'])
-async def submit(form_data):
-    name = form_data['name']
-    return Div(f"Hello, {name}")
-```
-
-### Sessions
-
-Pass `session_secret` to enable cookie-backed sessions. Add `session` to any handler signature:
-
-```python
-from ztml.server import ZTMLApp, serve
-
-app = ZTMLApp(session_secret="your-secret-key")
-
-@app.route('/login', methods=['POST'])
-def login(session, form_data):
-    session['user'] = form_data['username']
-    return Div("Logged in")
-
-@app.route('/profile')
-def profile(session):
-    return Div(f"Hello, {session.get('user', 'guest')}")
-
-serve(target=app)
-```
-
-For raw cookies (outside of sessions), use Starlette's built-in `response.set_cookie()` and `request.cookies.get()`.
-
-### Before Hooks
-
-Run checks before a route handler executes. Return a `Response` to short-circuit:
-
-```python
-from starlette.responses import RedirectResponse
-
-def require_auth(session):
-    if not session.get('user'):
-        return RedirectResponse('/login', status_code=303)
-
-@app.route('/dashboard', before=[require_auth])
-def dashboard(session):
-    return Div(f"Welcome, {session['user']}")
-```
-
-### Live Reload
-
-Set `dev=True` to enable uvicorn file-watching and automatic browser refresh on save:
-
-```python
-app = ZTMLApp(dev=True)
-# serve() automatically passes reload=True to uvicorn in dev mode
-```
-
-### WebSockets & SSE
-
-```python
-from ztml.server import ZTMLApp, EventStream
-
-app = ZTMLApp()
-
-@app.ws('/echo')
-async def echo(websocket):
-    await websocket.accept()
-    data = await websocket.receive_text()
-    await websocket.send_text(f"echo: {data}")
-    await websocket.close()
-
-@app.route('/stream')
-async def get():
-    async def updates():
-        yield Div("first update")
-        yield Div("second update")
-    return EventStream(updates()).response()
-```
-
-## Building from Source
-
-Prerequisites: [Rust toolchain](https://rustup.rs/), Python 3.12+, [uv](https://docs.astral.sh/uv/).
-
-```bash
-# Install dependencies and build the Rust extension
-uv sync
-
-# For iterative development (faster rebuilds)
-uv run maturin develop
-
-# Generate .pyi type stubs for autocompletion
-cargo run --bin gen_stubs --no-default-features
-```
-
-To build a distributable wheel:
-
-```bash
-maturin build --release
-# Output in target/wheels/
-```
+See the [docs](https://bleemesser.github.io/ztml/) for the full guide on HTML elements, CSS styling, JavaScript helpers, custom components, and the server layer.
 
 ## Examples
 
 ```bash
-# Generate a static HTML page to stdout 
-uv run examples/static_page.py > page.html # (open page.html in your browser!)
-
-# HTMX counter app (localhost:5001)
+uv run examples/static_page.py > page.html
 uv run examples/counter_server.py
-
-# Custom components demo
-uv run examples/components.py > components.html
-
-# HTMX todo app (localhost:5001)
 uv run examples/todo_server.py
-
-# Auth demo with sessions & before hooks (localhost:5001)
 uv run examples/auth_app.py
-
-# WebSocket chat room (localhost:5001)
 uv run examples/ws_chat.py
-
-# SSE live clock (localhost:5001)
 uv run examples/sse_clock.py
 ```
 
@@ -371,46 +100,28 @@ Scenario         Library      Elements   Build (ms)   Render (ms)   Total (ms)
 100x200          fasthtml        40400       710.79        106.00       816.57
                              speedup: build 12.2x, render 29.2x, total 13.2x
 ```
-^ M3 Pro MacBook Pro
+^ `benchmarks/bench.py` (M3 Pro MacBook Pro)
 
-Run the benchmark yourself:
+## Building from source
+
+Prerequisites: [Rust toolchain](https://rustup.rs/), Python 3.12+, [uv](https://docs.astral.sh/uv/).
 
 ```bash
-uv pip install python-fasthtml
-uv run benchmarks/bench.py
+uv sync
+uv run maturin develop
+cargo run --bin gen_stubs --no-default-features  # regenerate .pyi stubs
 ```
 
-## Running Tests
+## Running tests
 
 ```bash
 uv run python -m pytest
-
-# Rust unit tests
 cargo test -p ztml-core
 ```
 
-### How codegen works
-
-`build.rs` reads HTML element definitions from [webtags](https://webtags.nonstrict.eu/) and CSS property specs from [w3c/webref](https://github.com/w3c/webref), stored in `specs/`. From these it generates:
-
-- **Element constructors** — one Python function per HTML tag
-- **CSS property methods** — on `Rule`, `InlineStyle`, and `Frame`
-- **Enum classes** — for CSS keyword values and HTML attribute values
-
 ## Releasing
 
-CI runs on every push to `main` and on tags matching `v*`.
-
-**Regular push** (tests only):
-
-```bash
-git push
-```
-
-**Publishing a new version** (build + publish to PyPI):
-
-1. Bump the version in `crates/ztml-core/Cargo.toml` and `crates/ztml-python/Cargo.toml`
-2. Commit, tag, and push:
+Bump the version in `crates/ztml-core/Cargo.toml` and `crates/ztml-python/Cargo.toml`, make sure stubs are up to date, then:
 
 ```bash
 git add -A && git commit -m "bump version to 0.x.y"
@@ -418,7 +129,7 @@ git tag v0.x.y
 git push && git push origin v0.x.y
 ```
 
-The `v*` tag triggers the full build matrix (Linux, macOS, Windows) and publishes wheels to PyPI via trusted publishing.
+The `v*` tag triggers the full build matrix (Linux, macOS, Windows) and publishes to PyPI.
 
 ## License
 
