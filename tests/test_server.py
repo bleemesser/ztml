@@ -6,7 +6,7 @@ from starlette.testclient import TestClient
 from starlette.responses import Response, JSONResponse, RedirectResponse
 
 from ztml import Div, Html, Head, Body, Title, P, Fragment
-from ztml.server import ZTMLApp, _inject_head, EventStream
+from ztml.server import ZTMLApp, _inject_head, EventStream, NamedEventStream
 
 
 class TestHeadInjection:
@@ -511,6 +511,110 @@ class TestSSE:
         assert resp.headers["content-type"].startswith("text/event-stream")
         assert "data: <div>one</div>" in resp.text
         assert "data: <div>two</div>" in resp.text
+
+
+    def test_named_event_stream_basic(self):
+        app = ZTMLApp()
+        stream = NamedEventStream(interval=0.05, limit=2)
+
+        @stream.source("greeting")
+        def greeting():
+            return Div("hello")
+
+        @stream.source("count")
+        def count():
+            return Div("42")
+
+        @app.route("/stream")
+        async def get():
+            return stream.response()
+
+        client = TestClient(app)
+        resp = client.get("/stream")
+        assert resp.headers["content-type"].startswith("text/event-stream")
+        assert "event: greeting\ndata: <div>hello</div>" in resp.text
+        assert "event: count\ndata: <div>42</div>" in resp.text
+
+    def test_named_event_stream_strips_newlines(self):
+        """Rendered output with newlines is collapsed to a single data line."""
+        app = ZTMLApp()
+        stream = NamedEventStream(interval=0.05, limit=1)
+
+        @stream.source("styled")
+        def styled():
+            return "line1\nline2\nline3"
+
+        @app.route("/stream")
+        async def get():
+            return stream.response()
+
+        client = TestClient(app)
+        resp = client.get("/stream")
+        assert "event: styled\ndata: line1line2line3\n\n" in resp.text
+
+    def test_named_event_stream_async_source(self):
+        app = ZTMLApp()
+        stream = NamedEventStream(interval=0.05, limit=1)
+
+        @stream.source("async_data")
+        async def async_data():
+            return Div("async-result")
+
+        @app.route("/stream")
+        async def get():
+            return stream.response()
+
+        client = TestClient(app)
+        resp = client.get("/stream")
+        assert "event: async_data\ndata: <div>async-result</div>" in resp.text
+
+    def test_named_event_stream_custom_interval(self):
+        """Sources with different intervals fire at different rates."""
+        app = ZTMLApp()
+        stream = NamedEventStream(interval=0.05, limit=10)
+
+        @stream.source("fast", interval=0.05)
+        def fast():
+            return Div("fast")
+
+        @stream.source("slow", interval=0.2)
+        def slow():
+            return Div("slow")
+
+        @app.route("/stream")
+        async def get():
+            return stream.response()
+
+        client = TestClient(app)
+        resp = client.get("/stream")
+        assert "event: fast" in resp.text
+        assert "event: slow" in resp.text
+        fast_count = resp.text.count("event: fast")
+        slow_count = resp.text.count("event: slow")
+        assert fast_count >= slow_count
+
+    def test_named_event_stream_ztml_render_protocol(self):
+        """Objects implementing __ztml_render__ work as source return values."""
+        app = ZTMLApp()
+        stream = NamedEventStream(interval=0.05, limit=1)
+
+        @dataclasses.dataclass
+        class Status:
+            msg: str
+            def __ztml_render__(self):
+                return P(self.msg)
+
+        @stream.source("status")
+        def status():
+            return Status("ok")
+
+        @app.route("/stream")
+        async def get():
+            return stream.response()
+
+        client = TestClient(app)
+        resp = client.get("/stream")
+        assert "event: status\ndata: <p>ok</p>" in resp.text
 
 
 class TestDataclassIntegration:

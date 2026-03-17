@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import asyncio
 import inspect
 import re
+import time
 from typing import Any, AsyncGenerator, Callable
 
 from starlette.applications import Starlette
@@ -120,19 +122,127 @@ def _make_endpoint(
 
 
 class EventStream:
-    """Wrap an async generator of ztml components into an SSE StreamingResponse."""
+    """Wrap an async generator of ztml components into an SSE StreamingResponse.
 
-    def __init__(self, generator: AsyncGenerator) -> None:
+    Each yielded item is rendered and sent as an unnamed SSE ``data:`` event.
+    Multiline output is split across multiple ``data:`` lines per the SSE spec.
+
+    Usage::
+
+        async def counter():
+            i = 0
+            while True:
+                yield Div(str(i))
+                i += 1
+                await asyncio.sleep(1)
+
+        @app.route("/stream")
+        async def stream():
+            return EventStream(counter()).response()
+    """
+
+    def __init__(self, generator: AsyncGenerator, limit: int = 0) -> None:
         self._gen = generator
+        self._limit = limit
 
     async def _stream(self) -> AsyncGenerator[str, None]:
+        emitted = 0
         async for item in self._gen:
             data = _render_obj(item)
             for line in data.splitlines():
                 yield f"data: {line}\n"
             yield "\n"
+            emitted += 1
+            if self._limit and emitted >= self._limit:
+                return
 
     def response(self) -> StreamingResponse:
+        return StreamingResponse(self._stream(), media_type="text/event-stream")
+
+
+class NamedEventStream:
+    """SSE stream with multiple named event sources, each rendered automatically.
+
+    Register source functions with :meth:`source`. Each source returns a ztml
+    component (or string) that gets rendered, newline-stripped, and framed as a
+    named SSE event. Sources can be sync or async.
+
+    Sources share a default interval but can override it individually. Sources
+    with different intervals are tracked independently via last-fired timestamps.
+
+    Usage::
+
+        stream = NamedEventStream(interval=2)
+
+        @stream.source("cpu")
+        def cpu_event():
+            return cpu_fragment()
+
+        @stream.source("logs", interval=5)
+        async def logs_event():
+            return await fetch_recent_logs()
+
+        @app.route("/stream")
+        async def stream_route():
+            return stream.response()
+
+    On the client side, use ``sse-swap`` attributes matching the event names::
+
+        Div("Loading...").id("cpu").attr("sse-swap", "cpu")
+    """
+
+    def __init__(self, interval: float = 1, limit: int = 0) -> None:
+        self._default_interval = interval
+        self._sources: list[tuple[str, Callable, float]] = []
+        self._limit = limit
+
+    def source(self, name: str, *, interval: float | None = None) -> Callable:
+        """Register a named event source.
+
+        Args:
+            name: The SSE event name (matches ``sse-swap`` on the client).
+            interval: Seconds between invocations. Defaults to the stream-level
+                interval.
+        """
+        ival = interval if interval is not None else self._default_interval
+
+        def decorator(fn: Callable) -> Callable:
+            self._sources.append((name, fn, ival))
+            return fn
+
+        return decorator
+
+    async def _stream(self) -> AsyncGenerator[str, None]:
+        last_fired: dict[str, float] = {name: 0.0 for name, _, _ in self._sources}
+        emitted = 0
+        while True:
+            now = time.monotonic()
+            fired_any = False
+            for name, fn, ival in self._sources:
+                if now - last_fired[name] >= ival:
+                    if asyncio.iscoroutinefunction(fn):
+                        result = await fn()
+                    else:
+                        result = fn()
+                    data = _render_obj(result).replace("\n", "")
+                    yield f"event: {name}\ndata: {data}\n\n"
+                    last_fired[name] = now
+                    fired_any = True
+                    emitted += 1
+                    if self._limit and emitted >= self._limit:
+                        return
+            if not fired_any:
+                await asyncio.sleep(0.1)
+            else:
+                # Sleep for the shortest remaining interval
+                next_fire = min(
+                    ival - (now - last_fired[name])
+                    for name, _, ival in self._sources
+                )
+                await asyncio.sleep(max(next_fire, 0.05))
+
+    def response(self) -> StreamingResponse:
+        """Return a ``StreamingResponse`` suitable for returning from a route."""
         return StreamingResponse(self._stream(), media_type="text/event-stream")
 
 
