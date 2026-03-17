@@ -1,15 +1,31 @@
 """Server-Sent Events clock using ztml."""
 
-import asyncio
 from datetime import datetime
 
 from ztml import *
-from ztml.server import ZTMLApp, serve
-from starlette.responses import StreamingResponse
+from ztml.server import ZTMLApp, NamedEventStream, serve
 
 app = ZTMLApp(dev=True)
 
 SSE_EXT = '<script src="https://unpkg.com/htmx-ext-sse@2.2.2/sse.js"></script>'
+
+clock = NamedEventStream(interval=1)
+
+
+@clock.source("time")
+def time_event():
+    return datetime.now().strftime("%H:%M:%S")
+
+
+@clock.source("date")
+def date_event():
+    return datetime.now().strftime("%A, %B %d, %Y")
+
+
+@app.route("/clock")
+async def clock_route():
+    return clock.response()
+
 
 @app.route("/")
 def get():
@@ -54,19 +70,6 @@ def get():
             ).cls("clock"),
         ),
     )
-
-
-async def clock_stream():
-    while True:
-        now = datetime.now()
-        yield f"event: time\ndata: {now.strftime('%H:%M:%S')}\n\n"
-        yield f"event: date\ndata: {now.strftime('%A, %B %d, %Y')}\n\n"
-        await asyncio.sleep(1)
-
-
-@app.route("/clock")
-async def clock():
-    return StreamingResponse(clock_stream(), media_type="text/event-stream")
 
 
 if __name__ == "__main__":
