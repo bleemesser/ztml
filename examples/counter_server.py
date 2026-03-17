@@ -25,7 +25,7 @@ def get():
                     .background_color("white")
                     .padding("3rem")
                     .border_radius("12px")
-                    .prop("box-shadow", "0 4px 12px rgba(0,0,0,0.1)"),
+                    .box_shadow("0 4px 12px rgba(0,0,0,0.1)"),
                 Rule("#count")
                     .font_size("4rem")
                     .font_weight("bold")

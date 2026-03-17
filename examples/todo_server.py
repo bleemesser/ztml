@@ -39,7 +39,7 @@ def get():
                     .padding("2rem")
                     .width("100%")
                     .max_width("500px")
-                    .prop("box-shadow", "0 4px 12px rgba(0,0,0,0.1)"),
+                    .box_shadow("0 4px 12px rgba(0,0,0,0.1)"),
                 Rule("h1").margin_bottom("1rem"),
                 Rule(".add-form")
                     .display("flex")

@@ -84,7 +84,7 @@ class Page:
                         .border_radius("8px")
                         .padding("1.5rem")
                         .margin_bottom("1rem")
-                        .prop("box-shadow", "0 2px 4px rgba(0,0,0,0.1)"),
+                        .box_shadow("0 2px 4px rgba(0,0,0,0.1)"),
                     Rule(".card h2")
                         .font_size("1.25rem")
                         .margin_bottom("0.5rem"),

@@ -30,13 +30,13 @@ def get():
                     .border_radius("12px")
                     .padding("3rem")
                     .text_align("center")
-                    .prop("box-shadow", "0 4px 12px rgba(0,0,0,0.1)"),
+                    .box_shadow("0 4px 12px rgba(0,0,0,0.1)"),
                 Rule("h1").margin_bottom("1rem").color("#374151"),
                 Rule("#time")
                     .font_size("4rem")
                     .font_weight("bold")
                     .color("#3b82f6")
-                    .prop("font-variant-numeric", "tabular-nums"),
+                    .font_variant_numeric("tabluar-nums"),
                 Rule("#date")
                     .font_size("1.25rem")
                     .color("#6b7280")

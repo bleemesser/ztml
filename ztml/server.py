@@ -253,15 +253,18 @@ def serve(
                 var = k
                 break
 
-        # Build a dotted module path relative to cwd
-        try:
-            rel = script.relative_to(pathlib.Path.cwd())
-            mod = ".".join(rel.with_suffix("").parts)
-        except ValueError:
-            mod = script.stem
+        # Ensure the script's directory is importable in this process and subprocesses
+        import os
+        script_dir = str(script.parent)
+        if script_dir not in sys.path:
+            sys.path.insert(0, script_dir)
+        pp = os.environ.get("PYTHONPATH", "")
+        if script_dir not in pp.split(os.pathsep):
+            os.environ["PYTHONPATH"] = script_dir + (os.pathsep + pp if pp else "")
 
-        app_path = f"{mod}:{var}"
+        app_path = f"{script.stem}:{var}"
         kwargs.setdefault("reload", True)
+        kwargs.setdefault("reload_dirs", [script_dir])
         uvicorn.run(app_path, host=host, port=port, **kwargs)
     else:
         uvicorn.run(the_app, host=host, port=port, **kwargs)
