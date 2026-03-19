@@ -271,8 +271,7 @@ fn generate_css(css_dir: &Path, out_methods: &mut impl Write, out_enums: &mut im
             }
             let entry = all_properties.entry(prop.name.clone()).or_default();
             for val in &prop.values {
-                if val.value_type == "value" && !val.name.starts_with('<') {
-                    // Only plain keyword values, not type references
+                if val.value_type == "value" && is_plain_keyword(&val.name) {
                     entry.insert(val.name.clone());
                 }
             }
@@ -446,6 +445,15 @@ fn generate_html_enums(webtags_path: &Path, out: &mut impl Write) {
     }
     writeln!(out, "    Ok(())").unwrap();
     writeln!(out, "}}").unwrap();
+}
+
+/// Returns true if the value is a plain CSS keyword (e.g. "flex", "inline-block").
+/// Rejects syntax descriptors, type references, alternatives lists, functional
+/// notation like `fit-content()`, etc.
+fn is_plain_keyword(s: &str) -> bool {
+    !s.is_empty()
+        && s.chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '-')
 }
 
 /// Rust/Python keywords that need renaming when used as identifiers.

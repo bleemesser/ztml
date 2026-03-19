@@ -17,14 +17,12 @@ __all__ = [
     "AnimationDirection",
     "AnimationFillMode",
     "AnimationPlayState",
-    "AnimationTrigger",
     "Appearance",
     "Area",
     "AreaRel",
     "AreaShape",
     "Article",
     "Aside",
-    "AspectRatio",
     "Audio",
     "AudioCrossorigin",
     "AudioPreload",
@@ -57,7 +55,6 @@ __all__ = [
     "BorderWidth",
     "BoxDecorationBreak",
     "BoxShadow",
-    "BoxShadowOffset",
     "BoxShadowPosition",
     "BoxSizing",
     "BoxSnap",
@@ -171,7 +168,6 @@ __all__ = [
     "Fragment",
     "Frame",
     "GridAutoFlow",
-    "GridTemplate",
     "GridTemplateColumns",
     "GridTemplateRows",
     "H1",
@@ -534,11 +530,6 @@ class AnimationPlayState:
     running: builtins.str
 
 @typing.final
-class AnimationTrigger:
-    _dashed_ident_animation_action_: builtins.str
-    none: builtins.str
-
-@typing.final
 class Appearance:
     auto: builtins.str
     base: builtins.str
@@ -579,11 +570,6 @@ class AreaShape:
     default_state: builtins.str
     polygon_state: builtins.str
     rectangle_state: builtins.str
-
-@typing.final
-class AspectRatio:
-    auto: builtins.str
-    auto__ratio: builtins.str
 
 @typing.final
 class AudioCrossorigin:
@@ -761,16 +747,8 @@ class BoxShadow:
     none: builtins.str
 
 @typing.final
-class BoxShadowOffset:
-    horizontal_offset: builtins.str
-    none: builtins.str
-    vertical_offset: builtins.str
-
-@typing.final
 class BoxShadowPosition:
-    inner_box_shadow: builtins.str
     inset: builtins.str
-    outer_box_shadow: builtins.str
     outset: builtins.str
 
 @typing.final
@@ -998,7 +976,6 @@ class ColumnSpan:
 @typing.final
 class ColumnWidth:
     auto: builtins.str
-    fit_content: builtins.str
     max_content: builtins.str
     min_content: builtins.str
 
@@ -1058,8 +1035,6 @@ class ContainerType:
 
 @typing.final
 class Content:
-    __string__counter__attr_: builtins.str
-    attr: builtins.str
     close_quote: builtins.str
     no_close_quote: builtins.str
     no_open_quote: builtins.str
@@ -1091,7 +1066,6 @@ class CornerShape:
     scoop: builtins.str
     square: builtins.str
     squircle: builtins.str
-    superellipse: builtins.str
 
 @typing.final
 class CounterIncrement:
@@ -1420,7 +1394,6 @@ class FlowInto:
     content: builtins.str
     element: builtins.str
     none: builtins.str
-    specified_flow: builtins.str
 
 @typing.final
 class FlowTolerance:
@@ -1469,7 +1442,6 @@ class FontSizeAdjust:
     cap_height: builtins.str
     ch_width: builtins.str
     ex_height: builtins.str
-    ex_height__cap_height__ch_width__ic_width__ic_height: builtins.str
     from_font: builtins.str
     ic_height: builtins.str
     ic_width: builtins.str
@@ -1481,7 +1453,6 @@ class FontStyle:
     left: builtins.str
     normal: builtins.str
     oblique: builtins.str
-    oblique_angle__90deg90deg: builtins.str
     right: builtins.str
     small_caps: builtins.str
 
@@ -1513,14 +1484,8 @@ class FontVariant:
 
 @typing.final
 class FontVariantAlternates:
-    annotation: builtins.str
-    character_variant: builtins.str
     historical_forms: builtins.str
     normal: builtins.str
-    ornaments: builtins.str
-    styleset: builtins.str
-    stylistic: builtins.str
-    swash: builtins.str
 
 @typing.final
 class FontVariantCaps:
@@ -2413,18 +2378,12 @@ class GridAutoFlow:
     row: builtins.str
 
 @typing.final
-class GridTemplate:
-    _line_names_string_track_size_line_names____explicit_track_list_: builtins.str
-    none: builtins.str
-
-@typing.final
 class GridTemplateColumns:
     auto: builtins.str
     max_content: builtins.str
     min_content: builtins.str
     none: builtins.str
     subgrid: builtins.str
-    subgrid_line_name_list: builtins.str
 
 @typing.final
 class GridTemplateRows:
@@ -2433,7 +2392,6 @@ class GridTemplateRows:
     min_content: builtins.str
     none: builtins.str
     subgrid: builtins.str
-    subgrid_line_name_list: builtins.str
 
 @typing.final
 class HangingPunctuation:
@@ -4098,7 +4056,6 @@ class PrintColorAdjust:
 
 @typing.final
 class Quotes:
-    string_string: builtins.str
     auto: builtins.str
     match_parent: builtins.str
     none: builtins.str
@@ -5230,7 +5187,6 @@ class TableLayout:
 
 @typing.final
 class TextAlign:
-    alignment_character: builtins.str
     center: builtins.str
     end: builtins.str
     justify: builtins.str
@@ -5261,7 +5217,6 @@ class TextBoxTrim:
 @typing.final
 class TextCombineUpright:
     all: builtins.str
-    digits_integer_24: builtins.str
     none: builtins.str
 
 @typing.final
