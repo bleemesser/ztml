@@ -61,7 +61,7 @@ fn render_element_into(el: &Element, out: &mut String) {
                 out.push(' ');
                 out.push_str(name);
                 out.push_str("=\"");
-                out.push_str(&escape_attr(s));
+                push_escaped(s, out);
                 out.push('"');
             }
             AttrValue::Bool(true) => {
@@ -90,7 +90,7 @@ fn render_element_into(el: &Element, out: &mut String) {
 /// Render a single child node into the provided String
 pub fn render_child_into(child: &Child, out: &mut String) {
     match child {
-        Child::Text(s) => out.push_str(&escape_html(s)),
+        Child::Text(s) => push_escaped(s, out),
         Child::Raw(s) => out.push_str(s),
         Child::Node(el) => render_element_into(el, out),
         Child::Fragment(children) => {
@@ -101,24 +101,22 @@ pub fn render_child_into(child: &Child, out: &mut String) {
     }
 }
 
-/// Escape a string for use in an HTML attribute value
-fn escape_attr(s: &str) -> String {
-    escape_html(s)
-}
-
-/// Escape  `&`, `<`, `>`, and `"` from a string for use in HTML text
-fn escape_html(s: &str) -> String {
-    let mut out = String::with_capacity(s.len());
-    for c in s.chars() {
-        match c {
-            '&' => out.push_str("&amp;"),
-            '<' => out.push_str("&lt;"),
-            '>' => out.push_str("&gt;"),
-            '"' => out.push_str("&quot;"),
-            _ => out.push(c),
+/// Push HTML-escaped content directly into the output buffer,
+/// avoiding allocation when no escaping is needed.
+fn push_escaped(s: &str, out: &mut String) {
+    if !s.bytes().any(|b| matches!(b, b'&' | b'<' | b'>' | b'"')) {
+        out.push_str(s);
+    } else {
+        for c in s.chars() {
+            match c {
+                '&' => out.push_str("&amp;"),
+                '<' => out.push_str("&lt;"),
+                '>' => out.push_str("&gt;"),
+                '"' => out.push_str("&quot;"),
+                _ => out.push(c),
+            }
         }
     }
-    out
 }
 
 /// Render a CSS item into a string
