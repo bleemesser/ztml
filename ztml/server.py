@@ -6,13 +6,19 @@ import re
 import time
 from typing import Any, AsyncGenerator, Callable
 
-from starlette.applications import Starlette
-from starlette.middleware import Middleware
-from starlette.middleware.sessions import SessionMiddleware
-from starlette.requests import Request
-from starlette.responses import HTMLResponse, Response, StreamingResponse
-from starlette.routing import Route, WebSocketRoute
-from starlette.websockets import WebSocket, WebSocketDisconnect
+try:
+    from starlette.applications import Starlette
+    from starlette.middleware import Middleware
+    from starlette.middleware.sessions import SessionMiddleware
+    from starlette.requests import Request
+    from starlette.responses import HTMLResponse, Response, StreamingResponse
+    from starlette.routing import Route, WebSocketRoute
+    from starlette.websockets import WebSocket, WebSocketDisconnect
+except ModuleNotFoundError:
+    raise ImportError(
+        "ztml.server requires the 'serve' extra. "
+        "Install it with: pip install ztml[serve]"
+    ) from None
 
 from ztml._core import render
 

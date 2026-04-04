@@ -1,5 +1,7 @@
 # Routing
 
+> NOTE: Server features require the `serve` extra: `pip install ztml[serve]`
+
 ztml includes a built-in server layer on top of Starlette and Uvicorn. It's intentionally thin, enough for internal tools, dashboards, and prototypes without pulling in a full framework. If you're looking to write a larger web app, you can use ztml's components to define the UI and bring your own server instead, though you may need to manually call `render()`.
 
 ## Basic routes

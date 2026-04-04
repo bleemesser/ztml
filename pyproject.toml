@@ -19,13 +19,16 @@ classifiers = [
     "Topic :: Text Processing :: Markup :: HTML",
 ]
 
-dependencies = [
+dependencies = []
+dynamic = ["version"]
+
+[project.optional-dependencies]
+serve = [
     "starlette>=0.40",
     "uvicorn[standard]>=0.30",
     "python-multipart>=0.0.9",
     "itsdangerous>=2.0",
 ]
-dynamic = ["version"]
 
 [project.urls]
 Repository = "https://github.com/bleemesser/ztml"
